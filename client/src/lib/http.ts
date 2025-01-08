@@ -169,7 +169,7 @@ const request = async <Response>(
       const { accessToken, refreshToken } = (payload as LoginResType).data;
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
-    } else if ("auth/logout" === normalizePath(url)) {
+    } else if (normalizeUrl === "api/auth/logout") {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
     }
