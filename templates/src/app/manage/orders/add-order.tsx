@@ -1,7 +1,7 @@
 'use client'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { PlusCircle } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useMeQuerymo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { GuestLoginBody, GuestLoginBodyType } from '@/schemaValidations/guest.schema'
@@ -27,7 +27,7 @@ export default function AddOrder() {
   const [orders, setOrders] = useState<CreateOrdersBodyType['orders']>([])
   const dishes: DishListResType['data'] = []
 
-  const totalPrice = useMemo(() => {
+  const totalPrice = useMeQuerymo(() => {
     return dishes.reduce((result, dish) => {
       const order = orders.find((order) => order.dishId === dish.id)
       if (!order) return result

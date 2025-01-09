@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Upload } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMeQuerymo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -46,7 +46,7 @@ export default function EditDish({
   })
   const image = form.watch('image')
   const name = form.watch('name')
-  const previewAvatarFromFile = useMemo(() => {
+  const previewAvatarFromFile = useMeQuerymo(() => {
     if (file) {
       return URL.createObjectURL(file)
     }

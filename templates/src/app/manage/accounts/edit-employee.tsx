@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label'
 import { UpdateEmployeeAccountBody, UpdateEmployeeAccountBodyType } from '@/schemaValidations/account.schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Upload } from 'lucide-react'
-import { useMemo, useRef, useState } from 'react'
+import { useMeQuerymo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -44,7 +44,7 @@ export default function EditEmployee({
   const avatar = form.watch('avatar')
   const name = form.watch('name')
   const changePassword = form.watch('changePassword')
-  const previewAvatarFromFile = useMemo(() => {
+  const previewAvatarFromFile = useMeQuerymo(() => {
     if (file) {
       return URL.createObjectURL(file)
     }
