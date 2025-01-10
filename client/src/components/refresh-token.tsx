@@ -1,64 +1,42 @@
 "use client";
 
-import {
-  getAccessTokenFromLocalStorage,
-  getRefreshTokenFromLocalStorage,
-  setAccessTokenToLocalStorage,
-  setRefreshTokenToLocalStorage,
-} from "@/lib/utils";
-import { usePathname } from "next/navigation";
+import { checkAndRefreshToken } from "@/lib/utils";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import jwt from "jsonwebtoken";
-import authApiRequest from "@/apiRequests/auth.api";
 
+// Những page sau sẽ không check refesh token
 const UNAUTHENTICATED_PATH = ["/login", "/logout", "/refresh-token"];
-
-const RefreshToken = () => {
+export default function RefreshToken() {
   const pathname = usePathname();
+  const router = useRouter();
   useEffect(() => {
     if (UNAUTHENTICATED_PATH.includes(pathname)) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let interval: any = null;
-    const checkAndRefreshToken = async () => {
-      const accessToken = getAccessTokenFromLocalStorage();
-      const refreshToken = getRefreshTokenFromLocalStorage();
-      if (!accessToken || !refreshToken) return;
-      const decodedAccessToken = jwt.decode(accessToken) as {
-        exp: number;
-        iat: number;
-      };
-      const decodedRefreshToken = jwt.decode(refreshToken) as {
-        exp: number;
-        iat: number;
-      };
-      const now = Math.round(new Date().getTime() / 1000);
-      console.log(now);
-      console.log(decodedAccessToken.exp);
 
-      if (decodedRefreshToken.exp <= now) return;
-      if (
-        decodedAccessToken.exp - now <
-        (decodedAccessToken.exp - decodedAccessToken.iat) / 3
-      ) {
-        try {
-          const res = await authApiRequest.refreshToken();
-          setAccessTokenToLocalStorage(res.payload.data.accessToken);
-          setRefreshTokenToLocalStorage(res.payload.data.refreshToken);
-        } catch (error) {
-          console.log(error);
-
-          clearInterval(interval);
-        }
-      }
-    };
-    checkAndRefreshToken();
+    // Phải gọi lần đầu tiên, vì interval sẽ chạy sau thời gian TIMEOUT
+    checkAndRefreshToken({
+      onError: () => {
+        clearInterval(interval);
+        router.push("/login");
+      },
+    });
+    // Timeout interval phải bé hơn thời gian hết hạn của access token
+    // Ví dụ thời gian hết hạn access token là 10s thì 1s mình sẽ cho check 1 lần
     const TIMEOUT = 1000;
-    interval = setInterval(checkAndRefreshToken, TIMEOUT);
+    interval = setInterval(
+      () =>
+        checkAndRefreshToken({
+          onError: () => {
+            clearInterval(interval);
+            router.push("/login");
+          },
+        }),
+      TIMEOUT
+    );
     return () => {
       clearInterval(interval);
     };
-  }, [pathname]);
+  }, [pathname, router]);
   return null;
-};
-
-export default RefreshToken;
+}

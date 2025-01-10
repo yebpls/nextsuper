@@ -7,12 +7,14 @@ const unAuthPaths = ["/login"];
 // This function can be marked `async` if using `await` inside
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const accessToken = Boolean(request.cookies.get("accessToken")?.value);
-  const refreshToken = Boolean(request.cookies.get("refreshToken")?.value);
+  const accessToken = request.cookies.get("accessToken")?.value;
+  const refreshToken = request.cookies.get("refreshToken")?.value;
 
   // chua dang nhap
   if (privatePaths.some((path) => pathname.startsWith(path)) && !refreshToken) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    const url = new URL("/login", request.url);
+    url.searchParams.set("clearTokens", "true");
+    return NextResponse.redirect(url);
   }
 
   // dang nhap roi nhung accessToken het han
@@ -21,11 +23,9 @@ export default function middleware(request: NextRequest) {
     !accessToken &&
     refreshToken
   ) {
-    const url = new URL("/logout", request.url);
-    url.searchParams.set(
-      "refreshToken",
-      request.cookies.get("refreshToken")?.value ?? ""
-    );
+    const url = new URL("/refresh-token", request.url);
+    url.searchParams.set("refreshToken", refreshToken);
+    url.searchParams.set("redirect", pathname);
     return NextResponse.redirect(url);
   }
 

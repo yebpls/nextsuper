@@ -1,5 +1,6 @@
 "use client";
 
+import { useAppContext } from "@/components/app-provider";
 import {
   getAccessTokenFromLocalStorage,
   getRefreshTokenFromLocalStorage,
@@ -14,31 +15,22 @@ const LogoutPage = () => {
   const searchParams = useSearchParams();
   const refreshTokenFromUrl = searchParams.get("refreshToken");
   const accessTokenFromUrl = searchParams.get("accessToken");
-  console.log(
-    "1",
-    refreshTokenFromUrl &&
-      refreshTokenFromUrl !== getRefreshTokenFromLocalStorage()
-  );
-  console.log(
-    "2",
-    accessTokenFromUrl &&
-      accessTokenFromUrl !== getAccessTokenFromLocalStorage()
-  );
-
+  const { setIsAuth } = useAppContext();
   useEffect(() => {
     if (
       (refreshTokenFromUrl &&
-        refreshTokenFromUrl !== getRefreshTokenFromLocalStorage()) ||
+        refreshTokenFromUrl === getRefreshTokenFromLocalStorage()) ||
       (accessTokenFromUrl &&
-        accessTokenFromUrl !== getAccessTokenFromLocalStorage())
+        accessTokenFromUrl === getAccessTokenFromLocalStorage())
     ) {
-      return;
+      mutateAsync().then((res) => {
+        console.log(res);
+        setIsAuth(false);
+        router.push("/login");
+      });
+    } else {
+      router.push("/");
     }
-    mutateAsync().then((res) => {
-      console.log(res);
-
-      router.push("/login");
-    });
   }, [router, mutateAsync, refreshTokenFromUrl, accessTokenFromUrl]);
   return <div>LogoutPage</div>;
 };
